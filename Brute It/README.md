@@ -71,7 +71,7 @@ Firefox and Chrome have a Network Console to pull out the Request needed for Hyr
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItNetworkRequest.png)
 
-Also on the page, the words "Username or password invalid" will be needed so Hyrda knows that the password attempt was incorrect and to try the next.
+Also on the page, the words "Username or password invalid" will be needed so Hyrda knows that the password attempt was incorrect and to try the next password.
 
 Running the command:\
 hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.10.143.205 http-post-form "/admin/:user=^USER^&pass=^PASS^:Username or password invalid" display the following information.
