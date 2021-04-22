@@ -86,10 +86,9 @@ hydra -- The command used to execute Hydra.\
 http-post-form -- Lets Hydra know we are attempting to use Brute Force by\
 POSTing to a form.\
 "/admin/:user=^USER^&pass=^PASS^:Username or password invalid" -- This part is a bit confusing.
-
 /admin/ is the target page.\
-user=^USER&pass=^PASS^ are the params the form is using to pass data into the form. The ^USER^ and ^PASS^ are being used by the -l and -P part of the hydra command.\
-The final section is telling Hydra if you see this on the page, keep trying because this isn't the output we want.
+user=^USER&pass=^PASS^ are the params the form is using to pass data into the form via POST. The ^USER^ and ^PASS^ are being used by the -l and -P part of the hydra command to fill in the username and password.\
+The final section is telling Hydra if you see this on the page, keep trying because this isn't the output we want.\
 
 Question 1: What is the user:password of the admin panel? admin:xavier
 
