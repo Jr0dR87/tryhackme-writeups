@@ -5,9 +5,9 @@ Note* I used Kali Linux to complete this room. The IP address of my room was 10.
 **Task 1: About this box.**
 
 In this box you will learn about:\
--- Brute-force\
--- Hash cracking\
--- Privilege escalation
+- Brute-force\
+- Hash cracking\
+- Privilege escalation
 
 Connect to the TryHackMe network, and deploy the machine.
 
@@ -82,10 +82,10 @@ How this works:\
 hydra -- The command used to execute Hydra.\
 -l -- This is the user we want to authenticate as.\
 -P -- The wordlist we want to use when brute-forcing passwords.\
-10.10.143.205 -- This is the target website. (You will switch out with the IP of your target machine.)\
-http-post-form -- This will let Hydra know we are attempting to use Brute Force by\
+10.10.143.205 - This is the target website. (You will switch out with the IP of your target machine.)\
+http-post-form - This will let Hydra know we are attempting to use Brute Force by\
 using POST methods to the form.\
-"/admin/:user=^USER^&pass=^PASS^:Username or password invalid" -- Let's break this down.\
+"/admin/:user=^USER^&pass=^PASS^:Username or password invalid" - Let's break this down.\
 /admin/ is the target page.\
 user=^USER&pass=^PASS^ are the params the form is using to pass data into the form via POST. The ^USER^ and ^PASS^ are being used by the -l and -P part of the hydra command to fill in the username and password.\
 The final section is telling Hydra if you see this on the page, keep trying because this isn't the output we want.
@@ -102,10 +102,10 @@ The page also has a link to download John's RSA private key that allows John to 
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItJohnKeyScreenshot.png)
 
-First, we have to convert the RSA key into something John will understand and work with.\
+First, we have to convert the RSA key into something John will understand.\
 Running the command:\
 **/usr/share/john/ssh2john.py id_rsa > sshhash**\
-will give John a hash that it can understand.
+will give John a hash that it can understand and work with.
 
 Now we can run the command:\
 **john --wordlist=/usr/share/wordlists/rockyou.txt sshhash**
@@ -114,14 +114,14 @@ Now we can run the command:\
 
 How this works:
 
-john -- The command to execute John.\
---wordlist=/usr/share/wordlists/rockyou.txt sshhash -- Using the rockyou.txt, john is brute-forcing and trying to find a matching hash. Once it finds one it will display in the terminal.
+john - The command to execute John.\
+--wordlist=/usr/share/wordlists/rockyou.txt sshhash - Using the rockyou.txt, john is brute-forcing and trying to find a matching hash. Once it finds one it will display in the terminal.
 
 We now have the password.
 
 *Question 2: What is John's RSA Private Key passphrase? rockinroll*
 
-SSH is now possible with the user John.
+**SSH** is now possible with the user John.
 
 Running the command: **ssh -i id_rsa john@10.10.143.205**\
 will prompt for a password for the id_rsa key.\
@@ -137,7 +137,7 @@ This concludes Task 3 Getting a shell
 
 **Task 4 Privilege Escalation**
 
-The first thing to check is what sudo abilities John has.\
+The first thing to check is what **sudo** abilities John has.\
 Running the command:\
 **sudo -l**\
 shows John can use **cat** as **sudo**.
@@ -167,7 +167,7 @@ Similar to what we used before. We will run the command:\
 
 *Question 1: What is the root's password? football*
 
-We can now **su --** as john and when prompted give the password football and we are now root and can get the root flag.
+We can now **su -** as john and when prompted give the password football and we are now root and can get the root flag.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItRootFlag.png)
 
