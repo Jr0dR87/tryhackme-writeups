@@ -102,10 +102,10 @@ The page also has a link to download John's RSA private key that allows John to 
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItJohnKeyScreenshot.png)
 
-First, we have to convert the RSA key into something John will understand.\
+First, we have to convert the RSA key into something John will understand and work with.\
 Running the command:\
 **/usr/share/john/ssh2john.py id_rsa > sshhash**\
-will give John a hash that it can understand in the form of a hash.
+will give John a hash that it can understand.
 
 Now we can run the command:\
 **john --wordlist=/usr/share/wordlists/rockyou.txt sshhash**
@@ -125,7 +125,7 @@ SSH is now possible with the user John.
 
 Running the command: **ssh -i id_rsa john@10.10.143.205**\
 will prompt for a password for the id_rsa key.\
-Entering rockinroll will get us in and we can cat the user.txt to get the flag.
+Entering rockinroll will get us in and we can **cat** the user.txt to get the flag.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItUserFlag.png)
 
@@ -140,7 +140,7 @@ This concludes Task 3 Getting a shell
 The first thing to check is what sudo abilities John has.\
 Running the command:\
 **sudo -l**\
-shows John can use **cat** as sudo.
+shows John can use **cat** as **sudo**.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/04/BruteItJohnsudocommandsScreenshot.png)\
 Let's check [gtfobins](https://gtfobins.github.io/) and see what we can find a simple way to become root from this. Navigating to [gtfobins.github.io](https://gtfobins.github.io/gtfobins/cat/#sudo) shows us we can read from a file as root because we can use **cat** as **sudo**.
