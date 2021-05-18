@@ -1,3 +1,41 @@
+Pages found
+/
+/mansionmain
+/diningRoom/
+/teaRoom/
+/artRoom/
+/barRoom/
+/diningRoom2F/
+/tigerStatusRoom/
+/galleryRoom/
+/studyRoom/
+/armorRoom/
+/attic/
+
+Flags
+Emblam emblem{fec832623ea498e20bf4fe1821d58727} http://10.10.174.74/diningRoom/emblem.php
+Lock Pick lock_pick{037b35e2ff90916a9abf99129c8e1837} http://10.10.174.74/teaRoom/master_of_unlock.html from Barry in TeaRoom
+Music Sheet music_sheet{362d72deaf65f5bdc63daece6a1f676e} http://10.10.174.74/barRoom from decdoding base32 NV2XG2LDL5ZWQZLFOR5TGNRSMQ3TEZDFMFTDMNLGGVRGIYZWGNSGCZLDMU3GCMLGGY3TMZL5
+Gold Emblem gold_emblem{58a8c41a9d08b8a4e38d02a4d7ff4843} from /barRoom after using Music Flag
+Blue Gem blue_jewel{e1d457e96cac640f863ec7bc475d48aa} Push the statue to the first floor by using Rot13 ciper decoder from DiningHall2f page source 
+Shield Key Flag is shield_key{48a7a9227cd7eb89f0a062590798cbac}. Got this after decrypting Vigenere cipher and navigating to diningRoom/the_great_shield_key.html
+
+Unique Findings
+on /diningRoom page. Found in page source SG93IGFib3V0IHRoZSAvdGVhUm9vbS8= which is base64 for How about the /teaRoom/
+Lock Pick can be used on page /barRoom/
+Music Sheet is used on Bar Room and then you get Gold Emblem flag
+The Blue Gem is on Dining Room 2F and in the page source is a Rot13 Ciper that translates to You get the blue gem by pushing the status to the lower floor. The gem is on the diningRoom first floor. Visit sapphire.html
+diningRoom/emblem_slot.php cipher is a Vigenere Cipher. Decrypted shows there is a shield key inside the dining room. The html page is called the_great_shield_key
+
+Crest1 RlRQIHVzZXI6IG
+Crest2 h1bnRlciwgRlRQIHBh
+Crest3 c3M6IHlvdV9jYW50X2h
+Crest4 pZGVfZm9yZXZlcg==
+
+Together, all the crest make RlRQIHVzZXI6IGh1bnRlciwgRlRQIHBhc3M6IHlvdV9jYW50X2hpZGVfZm9yZXZlcg==
+which is base64 for 
+FTP user: hunter, FTP pass: you_cant_hide_forever
+
 1 Enumeration.
 Running nmap 
 nmap -sV -T4 -A -oA biohazard_nmap 10.10.174.74
@@ -24,5 +62,4 @@ Nmap done: 1 IP address (1 host up) scanned in 19.76 seconds
 Running gobuster
 gobuster dir -u http://10.10.174.74 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -o root_gobuster
 gobuster dir -u http://10.10.174.74/mansionmain -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -o mansionmain_gobuster
-
 
