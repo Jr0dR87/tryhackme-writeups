@@ -1,151 +1,159 @@
-Can you Catch Them All Notes.
+This is a WriteUp on how to complete the room [Gotta Catch'em All!](https://tryhackme.com/room/pokemon) on [TryHackMe](https://tryhackme.com).
 
-Running Nmap
-sudo nmap -sV -O -T4 -oN scans/nmap_scan 10.10.154.53
-shows port 80 and 22 are open.
-See nmap output file.
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/banner_canyoucatchthemall.png)
 
-Running Gobuster
-gobuster dir -u http://10.10.154.53 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -o scans/apache_root_gobuster_scan_canyoucatchthemall.txt -x php,html,txt,cgi,bak
+Note* I used Kali Linux to complete this room. The IP address of my room was 10.10.154.53, so that will be the IP you see in the writeup. Replace 10.10.154.53 with the IP of your target box.
 
-shows only the index page for apache.
+**Task 1: Can You Catch'em All?\
+**
 
-Navigating to the index page for apache shows the default apache information. The source code displays interesting finds. 
-A JavaScript Array
-    <script type="text/javascript">
-    	const randomPokemon = [
-    		'Bulbasaur', 'Charmander', 'Squirtle',
-    		'Snorlax',
-    		'Zapdos',
-    		'Mew',
-    		'Charizard',
-    		'Grimer',
-    		'Metapod',
-    		'Magikarp'
-    	];
-    	const original = randomPokemon.sort((pokemonName) => {
-    		const [aLast] = pokemonName.split(', ');
-    	});
+Let's begin trying to Catch'em All by doing a Nmap scan to see what ports are open.
 
-    	console.log(original);
-    </script>
-    
-<pokemon>:<hack_the_pokemon>
-<!--(Check console for extra surprise!)-->
+Running the command:\
+**sudo nmap -sV -O -T4 -oN scans/nmap_scan 10.10.154.53** shows ports 22 and 80 are open and running SSH and Apache.
 
-Credentials to SSH in.
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/nmap_scan_canyoucatchthemall.png)
 
-ls -la of home directory
-pokemon@root:~$ ls -la
-total 120
-drwxr-xr-x 19 pokemon pokemon 4096 Jun 22 08:20 .
-drwxr-xr-x  4 root    root    4096 Jun 22  2020 ..
--rw-------  1 pokemon pokemon    0 Aug 11  2020 .bash_history
--rw-r--r--  1 pokemon pokemon  268 Jun 22 09:26 .bash_logout
--rw-r--r--  1 pokemon pokemon 4085 Jun 22 09:26 .bashrc
-drwx------ 15 pokemon pokemon 4096 Jun 22 09:26 .cache
-drwx------  3 pokemon pokemon 4096 Jun 22  2020 .compiz
-drwx------ 15 pokemon pokemon 4096 Jun 22  2020 .config
-drwx------  3 root    root    4096 Jun 22  2020 .dbus
-drwxr-xr-x  3 pokemon pokemon 4096 Jun 22 09:37 Desktop
--rw-r--r--  1 pokemon pokemon   25 Jun 22  2020 .dmrc
-drwxr-xr-x  2 pokemon pokemon 4096 Jun 22  2020 Documents
-drwxr-xr-x  2 pokemon pokemon 4096 Jun 22  2020 Downloads
--rw-r--r--  1 pokemon pokemon 8980 Jun 22  2020 examples.desktop
-drwx------  2 pokemon pokemon 4096 Jun 22  2020 .gconf
-drwx------  3 pokemon pokemon 4096 Jun 22 08:20 .gnupg
--rw-------  1 pokemon pokemon 3410 Jun 22 08:20 .ICEauthority
-drwx------  3 pokemon pokemon 4096 Jun 22  2020 .local
-drwx------  5 pokemon pokemon 4096 Jun 22  2020 .mozilla
-drwxr-xr-x  2 pokemon pokemon 4096 Jun 22  2020 Music
-drwxrwxr-x  2 pokemon pokemon 4096 Aug 11  2020 .nano
-drwxr-xr-x  2 pokemon pokemon 4096 Jun 22  2020 Pictures
--rw-r--r--  1 pokemon pokemon  655 Jun 22  2020 .profile
-drwxr-xr-x  2 pokemon pokemon 4096 Jun 22  2020 Public
--rw-r--r--  1 pokemon pokemon    0 Jun 22  2020 .sudo_as_admin_successful
-drwxr-xr-x  2 pokemon pokemon 4096 Jun 22  2020 Templates
-drwxr-xr-x  3 pokemon pokemon 4096 Jun 22  2020 Videos
--rw-------  1 pokemon pokemon   49 Jun 22 08:19 .Xauthority
--rw-------  1 pokemon pokemon   82 Jun 22 08:19 .xsession-errors
--rw-------  1 pokemon pokemon 1250 Aug 11  2020 .xsession-errors.old
+How this works:\
+nmap -- The command used to execute Nmap.\
+-sV -- This means Nmap will run a service/version detection scan.\
+-O -- Does OS Detection and Fingerprinting.\
+-T4 -- This is the timing option. T4 is a good mix of speed and accuracy for CTF's.\
+-oN nmap_scan -- This means we want to save the output to a file named nmap_scan.
 
+Since we see Apache is running on port 80, let's run Gobuster to see if we can find any hidden files and directories.
 
-The user Pokemon cannot run sudo
-[sudo] password for pokemon: 
-Sorry, user pokemon may not run sudo on root.
+Running the command:
 
-Flag 1
-Navigating to the Desktop as a starting point
-./Desktop:
-P0kEmOn  P0kEmOn.zip
+**gobuster dir -u http://10.10.154.53 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -o scans/apache_root_gobuster_scan_canyoucatchthemall.txt -x php,html,txt,cgi,bak**
 
-./Desktop/P0kEmOn:
-grass-type.txt
+How this works:\
+gobuster -- The command to execute GoBuster.\
+dir -- (scan for directories).\
+-u -- Target URL.\
+-w -- the wordlist we are using to scan for hidden directories. In this case, I used the wordlist in Dirbuster called directory-list-2.3-small.txt.\
+-o -- saves the output to a file. In this case, we are saving to apache_root_gobuster_scan_canyoucatchthemall.txt.\
+-x -- Extensions for files to locate. In this case, find php, html, txt, cgi, and bak.
 
-Found a zip file on the Desktop call P0kEmOn.zip
-After unzipping, I found the file grass-type.txt with Hex in it.
-50 6f 4b 65 4d 6f 4e 7b 42 75 6c 62 61 73 61 75 72 7d
-Translates to PoKeMoN{Bulbasaur} (the first flag)
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/gobuster_index_canyoucatchthemall.png)
 
-Navigating to the Apache Folder, I found a file named water-type.txt.
+The results display just the index page for Apache. Let's check it out because we don't really have anywhere else to look.
 
-Flag 2
-pokemon@root:/var/www/html$ ls -l
-total 16
--rw-r--r-- 1 root    root 11217 Jun 24  2020 index.html
--rw-r--r-- 1 pokemon root    24 Jun 22  2020 water-type.txt
-pokemon@root:/var/www/html$ cat water-type.txt 
-Ecgudfxq_EcGmP{Ecgudfxq}pokemon@root:/var/www/html$ 
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/apache_page_canyoucatchthemall.png)
 
-Using ROT13 I found the flag Squirtle_SqUaD{Squirtle}
+Navigating to http://10.10.154.53 shows the default Apache landing page.
 
-Flag 3
-/etc has a weird directory called why_am_i_here?
-inside the folder is a file named fire-type.txt. 
-The contents of fire-type.txt 
-UDBrM20wbntDaGFybWFuZGVyfQ== which is base64 for P0k3m0n{Charmander}
+The source code displays interesting information though. It's always worth your time to view source code as it can not only display comments on how the application works. Some developers could leave behind credentials and other useful information to use.
 
-Back in the home directory of pokemon, I ran ls -R to see all the recursive folders and files.
-pokemon@root:~$ ls -R
-.:
-Desktop  Documents  Downloads  examples.desktop  Music  Pictures  Public  Templates  Videos
+This bit shows a snippet of JavaScript to create an array of various Pokemon. We can see it on display in the browser console.
 
-./Documents:
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/apache_page_js_code_canyoucatchthemall.png)
 
-./Downloads:
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/apache_page_array_canyoucatchthemall.png)
 
-./Music:
+What's interesting is what is at the bottom of the source code. We might have found some credentials.
 
-./Pictures:
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/apache_source_code_hint_canyoucatchthemall.png)
 
-./Public:
+Let's use these and try to SSH into the server.
 
-./Templates:
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/ssh_login_canyoucatchthemall.png)
 
-./Videos:
-Gotta
+Looks like we are in! Let's run ls -la to see what's here for us.
 
-./Videos/Gotta:
-Catch
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/home_directory_canyoucatchthemall.png)
 
-./Videos/Gotta/Catch:
-Them
+It seems the user pokemon cannot sudo.
 
-./Videos/Gotta/Catch/Them:
-ALL!
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/cantsudo_canyoucatchthemall.png)
 
-./Videos/Gotta/Catch/Them/ALL!:
-Could_this_be_what_Im_looking_for?.cplusplus
-pokemon@root:~$ cd Videos/Gotta/Catch/Them/ALL\!/
-pokemon@root:~/Videos/Gotta/Catch/Them/ALL!$ ls -l
-total 4
--rw-r--r-- 1 pokemon root 78 Jun 22  2020 Could_this_be_what_Im_looking_for?.cplusplus
+We should also take a look at /etc/passwd to see if we can find other users for this machine. The one that sticks out is **ash**. We will probably use that user later, so let's keep that in our notes.
 
-I found this c++ file Could_this_be_what_Im_looking_for?.cplusplus
-This had more credentials and nothing more "ash : pikapika"
-Seems like a waste to try and compile
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/passwd_canyoucatchthemall.png)
 
-Flag 4
-su - ash pikapika allows me to become ash.
-Navigating to /home, I found roots-pokemon.txt
-Cating the file shows the last flag Pikachu!
+**Flag: Find the Grass-Type Pokemon**
+
+Let's start by checking out what is on the Desktop. CTF's normally have something useful there. Here we find a strange zip file named P0kEm0n.zip.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/desktop_canyoucatchthemall.png)
+
+Let's unzip it with the **unzip** command.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/unzip_pokemon_zip_canyoucatchthemall.png)After unzipping, we find the file grass-type.txt with Hex in it.
+
+**50 6f 4b 65 4d 6f 4e 7b 42 75 6c 62 61 73 61 75 72 7d**
+
+Let's take this to [CyberChef](https://gchq.github.io/CyberChef/) and see what we can learn.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/hex_flag_canyoucatchthemall.png)
+
+Since this is Hex, let's paste the contents of the grass-type.txt into the Input Section. Now search for From Hex on the left-hand side and use it for the Recipe. Turns out this helps us get the first flag! One Pokemon down!
+
+**Flag: Find the Water-Type Pokemon**
+
+Let's check out what else is in the Apache folders. Navigating to /var/www/html, we find a file named water-type.txt.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/apache_folder_contents_canyoucatchthemall.png)
+
+After Opening the text file, we find this.
+
+**Ecgudfxq_EcGmP{Ecgudfxq}**
+
+Going back to [CyberChef](https://gchq.github.io/CyberChef/) we can assume this is ROT13 based on its appearance.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/rot13_flag_canyoucatchthemall.png)
+
+Since this is ROT13, let's paste the contents of the water-type.txt into the Input Section and search for ROT13 on the left-hand side and use it for the Recipe. If we tweak the amount to 14 we should get the flag in the output for the water-type Pokemon! Another Pokemon down!
+
+**Flag: Find the Fire-Type Pokemon**
+
+The naming convention for the Pokemon element-type files seems to be element-type.txt. Let's see if we can try and find the fire-type Pokemon with that naming convention. We can try that with the **find** command.
+
+**Command: find / -type f -name "fire-type*" 2>/dev/null**
+
+This is going to search the server starting in the root directory and look for files (-type f) with the name fire-type* (-name "fire-type*") and throw all the errors we get into /dev/null so they don't flood the command line (2>/dev/null).
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/find_firetype_canyoucatchthemall.png)
+
+We got a hit and the file is located in /etc/why_am_i_here?/ Inside the folder is a file named fire-type.txt.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/etc_whyamiherefile_canyoucatchthemall.png)\
+After Opening the text file, we find this.
+
+**UDBrM20wbntDaGFybWFuZGVyfQ==**
+
+Based on the last two characters ==, this is a good indicator that it is probably base64.
+
+Going back to [CyberChef](https://gchq.github.io/CyberChef/) one more time!
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/base64_flag_canyoucatchthemall.png)
+
+Since this is base64, let's paste the contents of the fire-type.txt into the Input Section and search for From Base64 on the left-hand side and use it for the Recipe. This shows the third Pokemon!
+
+**Final Flag: Who is Root's Favorite Pokemon**
+
+Back in the home directory of pokemon, let's check the contents of all the folders to see if we can find anything else that's interesting. Using the command ls -R
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/deep_directory_dive_canyoucatchthemall.png)
+
+The Videos directory seems to hold multiple recursive folders. Navigating down brings us to a file named Could_this_be_what_Im_looking_for?.cplusplus. Reading the contents of the file shows this snippet of code.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/c_canyoucatchthemall.png)
+
+The important thing from this is we seem to have found the password for the user ash. Let's try and **su -- ash** and see if this is the password.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/su_ash_canyoucatchthemall.png)
+
+This seems to work! We are now the user ash.
+
+The first place we should check for the flag is ash's home directory. Inside /home we can see ash's folder can only be accessed by root. We do see the file roots-pokemon.txt with permissions that show ash can read, write and execute the file. We can open the file and get the final flag!
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/lastflag_canyoucatchthemall.png)
+
+I would like to add though, ash has the ability to use sudo for all commands and you can become root by running sudo su -- .
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/06/becoming_root_canyoucatchthemall.png)
+
+That completes the room! Well done! If you found this helpful, please send me a [tweet](https://twitter.com/JarrodR87) and tell me what you thought! Feedback is always appreciated!
+
+Jarrod
