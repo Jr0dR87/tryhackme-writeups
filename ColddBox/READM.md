@@ -9,7 +9,7 @@ This is a WriteUp on how to complete the room [ColddBox: Easy](https://tryhackme
 
 Note* I used Kali Linux to complete this room. The IP address of my room was 10.10.170.248, so that will be the IP you see in the writeup. Replace 10.10.170.248 with the IP of your target box.
 
-Let's begin this room by enumerating and gathering information about the server by doing an Nmap scan to see what ports are open.
+Let's begin this room by enumerating and gathering information about the server by doing an Nmap scan to see which ports are open.
 
 Running the command:\
 **sudo nmap -sV -T4 -O -oN nmap_scan 10.10.170.248** shows ports 4512 and 80 are open and running SSH 7.2 and Apache 2.4.18 on an Ubuntu Server. Note that SSH is running on a different port than normal.
@@ -27,7 +27,7 @@ Since Apache is running on port 80. Let us take a look and see if a website is b
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/home_page_coldbox.png)
 
-Looking around the website doesn't show anything interesting and nothing appears in the source code either. Let's do more enumeration with Gobuster and see if we can find hidden files/directories.
+Looking around the website doesn't show anything interesting and nothing appears in the source code either. Let's do some more enumeration with Gobuster to see if we can find hidden files/directories.
 
 Running the command:
 
@@ -55,7 +55,7 @@ Since we know this is a WordPress site. Let us bring in another tool to learn mo
 Running the command:
 
 **wpscan --url http://10.10.170.248 --enumerate** will scan the site and give us more information about the WordPress CMS.\
-(This displays a lot of information and I encourage you to run it and see all the results from the scan.)
+(This displays a lot of information and I encourage you to run it to see all the results from the scan.)
 
 How this works:\
 wpscan -- The command to execute WPScan.\
@@ -68,7 +68,7 @@ The results we should be interested in are the three users. They are philip, c0l
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/wpscan_pic3_coldbox.png)
 
-We can use WPScan and see if we can find passwords for these users and log in with a password attack.
+We can use WPScan to see if we can find passwords for these users and log in with a password attack.
 
 Running the command:
 
@@ -86,15 +86,15 @@ After a few minutes, we have a hit on the user C0ldd!
 
 We can now try and log in as the user!
 
-Let's navigate to http://10.10.170.248/wp-login should display the log in page. Let's use our new found credentials c0ldd:9876543210.
+Let's navigate to http://10.10.170.248/wp-login should display the log in page. We'll use our new found credentials c0ldd:9876543210.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/wp_login_coldbox-1.png)
 
-We now have access to the dashboard. Here we can look around and get more information about our target. What's very interesting and also poor configuration on the targets end is the WordPress Editor is still enabled. This is located in the menu on the left hand side under Appearance.
+We now have access to the dashboard. Here we can look around to get more information about our target. What's very interesting and also poor configuration on the targets end, is that the WordPress Editor is still enabled. This is located in the menu on the left hand side under Appearance.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/wp_dashboard_coldbox.png)
 
-With this feature, we can easily drop in PHP code to perform a reverse shell. (Anyone running a PHP site needs to disable this as it's very easy to abuse as we shall soon see.)
+With this feature, we can easily drop in PHP code to perform a reverse shell. (Anyone running a PHP site needs to disable this as it's very easy to abuse, as we shall soon see.)
 
 Kali Linux has PHP Reverse Shell scripts located in /usr/share/webshells/php/. The file is named php-reverse-shell.php. Open it with a text editor and we need to update two values. The $ip and $port.
 
@@ -104,7 +104,7 @@ The $port will be our listening port for the reverse shell. Let's use 4444 as it
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/reverse_shell_script_coldbox.png)
 
-Before we copy and paste this script to the WordPress Editor, let's get a listener setup with Netcat.
+Before we copy and paste this script to the WordPress Editor let's get a listener setup with Netcat.
 
 Now let's use Netcat and get into the system!
 
@@ -143,7 +143,7 @@ Now let's fire linpeas with ./linpeas.sh.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/linpeas_coldbox.png)
 
-What this is doing is scanning the server for possible vulnerabilities and things we can exploit. It's a very handy enumeration tool for Linux systems.
+This is scanning the server for possible vulnerabilities and things we can exploit. It's a very handy enumeration tool for Linux systems.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/07/linpeas_interesting_files_coldbox.png)
 
