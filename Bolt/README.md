@@ -57,11 +57,13 @@ Doing some Google searching, we can find that the login page for the Bolt CMS is
 We are now on the Admin Dashboard.\
 ![](https://jarrodrizor.com/wp-content/uploads/2021/08/Bolt_Admin_Dashboard.png)
 
-Here we can see the answer to the next question.
+Here we can see the answer to the next question about the CMS. The room doesn't go into more detail about needing the dashboard. We just want to get the version of Bolt.
 
 **What version of the CMS is installed on the server? (Ex: Name 1.1.1)**
 
 Answer -- Bolt 3.7.1
+
+With this information, we can do more research and find helpful information on exploiting the machine. Searching on Google shows us the next answer.
 
 **There's an exploit for a previous version of this CMS, which allows authenticated RCE. Find it on Exploit DB. What's its EDB-ID?**
 
@@ -69,15 +71,45 @@ Answer -- 48296
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/08/Bolt_edb-id.png)
 
+Let's open up Metasploit and see if we can find a way to help automate our exploitation process. Using the command **msfconsole -q** (-q means do not print the banner) we can start Metasploit. Let's first search for bolt and we what we can find. Let's use the command **search bolt** and hit enter.
+
+This shows us two options. Option 1 shows the version of bolt that we are pretty close to. Let's give that a shot. Let's type **use 1** in Metasploit to use that exploit. Typing **options** will show what parameters we can fill. What we are looking at is the **RHOSTS, RPORT, PASSWORD, USERNAME, LHOST, and LPORT**.
+
+Let's go over each one.
+
+**RHOSTS** -- The target virtual machine. In this case 10.10.144.210
+
+**RPORT** -- The port the service is running on. Bolt runs on 8000 in our case, so we don't need to change this.
+
+**PASSWORD** -- The password we used to log in with. This was boltadmin123.
+
+**USERNAME** -- The username we used to log in with. This was bolt.
+
+**LHOST** -- Our virtual machines interface IP address. (run **ip addr** if you need to find yours)
+
+**LPORT** -- What we are using to listen to. Our default is 4444. This will work just fine.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/08/Bolt_metasploit_exploit.png)
+
+After getting these values set, let's run options again to make sure everything looks correct.
+
+Now we need to run the command **exploit** to begin attacking the machine.We can see the results from the exploit as it's performing the remote code execution.
+
+We now have a reverse shell to the machine and lucky for us, we are root! Let's run python3  -c 'import pty; pty.spawn("/bin/bash")' to spawn a TTY Shell.
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/08/Bolt_metasploit_options.png)
+
+![](https://jarrodrizor.com/wp-content/uploads/2021/08/Bolt_Becoming_Root.png)
+
+Let's take a minute and answer more questions now that we know the exploit did the job!
+
 **Metasploit recently added an exploit module for this vulnerability. What's the full path for this exploit? (Ex: exploit/....)**
 
 Answer -- exploit/unix/webapp/bolt_authenticated_rce
 
-![](https://jarrodrizor.com/wp-content/uploads/2021/08/Bolt_metasploit_options.png)
-
 **Look for flag.txt inside the machine.**
 
-![](https://jarrodrizor.com/wp-content/uploads/2021/08/Bolt_Becoming_Root.png)
+We can cd into the /home directory and find the flag. Running the **cat** command will display the contents of the file and all we need to do is copy and paste it to TryHackMe.
 
 ![](https://jarrodrizor.com/wp-content/uploads/2021/08/Bolt_Flag.png)
 
