@@ -11,6 +11,9 @@ Note* I used Kali Linux to complete this room. The IP address of my room was 10.
 
 Let's begin this room by deploying the virtual machine.
 
+Nmap
+====
+
 Now that it is running, we can begin enumerating and gathering information about the server by doing an Nmap scan to see which ports are open and what services are on the ports.
 
 Running the command:\
@@ -62,6 +65,9 @@ Here we can see the answer to the next question about the CMS. Note* The room do
 **What version of the CMS is installed on the server? (Ex: Name 1.1.1)**
 
 *Answer -- Bolt 3.7.1*
+
+Metasploit
+==========
 
 With this information, we can do more research and find helpful information on exploiting the machine. Using Google, we can search for Bolt 3.7.1 Exploits. This should lead us to a link to the following page on [exploit-db](https://www.exploit-db.com/exploits/48296).
 
