@@ -110,7 +110,7 @@ We now have a reverse shell to the machine and lucky for us, we are root!
 
 Let's run **python3  -c 'import pty; pty.spawn("/bin/bash")'** to spawn a TTY Shell.
 
-Let's take a minute and answer more questions now that we know the exploit did the job!
+Now that we know the exploit worked we can answer the next question.
 
 **Metasploit recently added an exploit module for this vulnerability. What's the full path for this exploit? (Ex: exploit/....)**
 
